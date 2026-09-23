@@ -31,13 +31,37 @@ This repository is a fresh starter project. It currently contains no application
 
 ## Usage
 
-No application code exists yet. As the project grows, document how to run it here.
+### Issue lifecycle handling (LIFE-05)
+
+The `issue_lifecycle` package implements handling for GitHub issues that are
+closed (as completed or as not planned) or deleted, both before execution and
+during a run:
+
+- `claim_issue(number, provider)` — the pre-execution gate. It re-checks the
+  live issue state and refuses to claim anything that is not OPEN, so unstarted
+  closed/deleted work is never claimed.
+- `LifecycleWatcher(number, provider, interval=30.0)` — polls issue state during
+  a run. Call `watcher.check()` at safe points; it raises `RunAborted` if the
+  issue was closed (completed or not planned) or deleted mid-run.
+
+### Running the tests
+
+```bash
+python -m pytest -q
+```
 
 ## Project Structure
 
 ```
 .
-└── README.md
+├── README.md
+├── issue_lifecycle
+│   ├── __init__.py
+│   ├── claimer.py
+│   ├── models.py
+│   └── watcher.py
+└── tests
+    └── test_issue_lifecycle.py
 ```
 
 ## Next Steps
