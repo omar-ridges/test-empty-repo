@@ -1,0 +1,2 @@
+# No runtime dependencies (standard library only).
+# Dev/test dependencies: pytest
