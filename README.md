@@ -31,13 +31,24 @@ This repository is a fresh starter project. It currently contains no application
 
 ## Usage
 
-No application code exists yet. As the project grows, document how to run it here.
+The `issue_lifecycle` module implements LIFE-05: GitHub issues that are closed
+(as completed or not planned) or deleted are never claimed as unstarted work,
+and runs already in progress stop gracefully at the next checkpoint.
+
+Run the test suite:
+
+```bash
+python -m unittest discover -s tests -t . -v
+```
 
 ## Project Structure
 
 ```
 .
-└── README.md
+├── README.md
+├── issue_lifecycle.py
+└── tests/
+    └── test_issue_lifecycle.py
 ```
 
 ## Next Steps
