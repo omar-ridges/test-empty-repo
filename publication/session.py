@@ -43,7 +43,7 @@ import hashlib
 import threading
 import time
 from dataclasses import dataclass
-from typing import Callable, Dict, List, Optional
+from typing import Callable, Dict, List, Optional, Tuple
 
 from .billing import BillingLedger, Charge
 from .states import TERMINAL_PHASES, FinalOutcome, Phase
@@ -82,7 +82,7 @@ class StopResult:
 
 @dataclass(frozen=True)
 class SessionEvent:
-    """An audit-log entry for a phase transition."""
+    """An audit-log entry (phase transitions and Stop requests)."""
 
     at: float
     phase: Phase
@@ -141,7 +141,6 @@ class PublicationSession:
         self._phase = Phase.IDLE
         self._final_outcome: Optional[FinalOutcome] = None
         self._stop_requested = False
-        self._stop_requested_at: Optional[float] = None
         self._stop_requested_in_phase: Optional[Phase] = None
         self._stop_requests = 0
         self._point_of_no_return_passed = False
@@ -200,7 +199,7 @@ class PublicationSession:
         return self._billing
 
     @property
-    def events(self) -> tuple:
+    def events(self) -> Tuple[SessionEvent, ...]:
         with self._lock:
             return tuple(self._events)
 
@@ -233,7 +232,6 @@ class PublicationSession:
         the result explains that publication can no longer be prevented and
         the final outcome will truthfully report what happened.
         """
-        now = self._clock()
         with self._lock:
             self._stop_requests += 1
             if self._phase is Phase.PUBLISHED:
@@ -263,8 +261,12 @@ class PublicationSession:
                 )
             if not self._stop_requested:
                 self._stop_requested = True
-                self._stop_requested_at = now
                 self._stop_requested_in_phase = self._phase
+                self._record(
+                    self._phase,
+                    "stop requested (will be honoured at the next checkpoint "
+                    "that is before the point of no return)",
+                )
             if self._phase is Phase.PUBLISHING:
                 return StopResult(
                     honoured=False,
@@ -369,8 +371,9 @@ class PublicationSession:
                 detail="publish committed; past the point of no return",
             )
             self._point_of_no_return_passed = True
+            upload_token = self._upload_token
         try:
-            pr_url = self._create_pr_fn(self._upload_token, pr_metadata or {})
+            pr_url = self._create_pr_fn(upload_token, pr_metadata or {})
         except Exception as exc:
             with self._lock:
                 if self._stop_requested:
