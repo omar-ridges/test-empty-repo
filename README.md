@@ -23,10 +23,11 @@ This repository is a fresh starter project. It currently contains no application
    source .venv/bin/activate
    ```
 
-3. Install dependencies (none required yet):
+3. Install dependencies (skip for now — create a `requirements.txt` first,
+   once the project has dependencies):
 
    ```bash
-   pip install -r requirements.txt   # add this file when dependencies exist
+   pip install -r requirements.txt
    ```
 
 ## Usage
