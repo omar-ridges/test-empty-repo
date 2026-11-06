@@ -23,10 +23,13 @@ This repository is a fresh starter project. It currently contains no application
    source .venv/bin/activate
    ```
 
-3. Install dependencies (none required yet):
+3. Install dependencies
+
+   No dependencies are required yet. Once the project declares them, add a
+   `requirements.txt` (or `pyproject.toml`) and install with:
 
    ```bash
-   pip install -r requirements.txt   # add this file when dependencies exist
+   pip install -r requirements.txt
    ```
 
 ## Usage
@@ -37,6 +40,7 @@ No application code exists yet. As the project grows, document how to run it her
 
 ```
 .
+├── .gitignore
 └── README.md
 ```
 
